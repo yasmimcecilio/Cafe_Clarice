@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css.css">
+    
+    <title>Menu Gourmet - Faça seu Pedido</title>
+    <meta name="description" content="Explore nosso cardápio, veja fotos e detalhes dos pratos e selecione seus itens para pedir.">
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="sr-only">Menu Gourmet</h1>
+
+        <div class="search">
+            <label for="search" class="sr-only">
+                Pesquisar prato ou ingrediente...
+            </label>
+            <input type="text" id="search" placeholder="Pesquisar prato ou ingrediente...">
+        </div>
+
+        <div id="secaoPedido" style="display: none; margin-bottom: 50px;">
+            <h2 style="margin-bottom: 20px;">Seu Pedido</h2>
+            <!-- <button class="btn-fav ${ehSelecionado ? 'active' : ''}" 
+                onclick='alternarSelecaoPedido(${pratoJson})'>
+                ${ehSelecionado ? 'Remover do Pedido' : 'Adicionar ao Pedido'}
+            </button> -->
+            <div class="grid" id="gridPedido"></div>
+            <hr style="border: 0; border-top: 2px solid var(--color-light-accent); margin: 40px 0;">
+        </div>
+
+        <h2 id="tituloBusca" style="margin-bottom: 20px;">Nosso Cardápio</h2>
+        <div class="grid" id="grid"></div>
+    </div>
+
+    <script>
+        const MENU_DATA = [
+            //bebidas:
+            {
+                id: 1,
+                nome: "A Hora Da Estrela",
+                categoria: "Bebidas",
+                preco: "R$ 12,00",
+                imagem: "imagens/aHoraDaEstrela.jpg",
+                descricao: " Café especial da casa, de sabor marcante e acolhedor."
+            },
+            {
+                id: 2,
+                nome: "Água Viva",
+                categoria: "Bebidas",
+                preco: "R$ 18,00",
+                imagem: "imagens/AguaViva.jpg",
+                descricao: "Bebida refrescante, leve e delicada (Soda italiana / Espresso tônica)"
+            },
+            {
+                id: 3,
+                nome: "Perto do Coração Selvagem",
+                categoria: "Bebidas",
+                preco: "R$ 17,00",
+                imagem: "imagens/PertodoCoracaoSelvagem.jpg",
+                descricao: "CCappuccino cremoso e intenso, com sabor envolvente."
+            },
+            {
+                id: 4,
+                nome: "Uma Aprendizagem ou O Livro dos Prazeres",
+                categoria: "Bebidas",
+                preco: "R$ 19,00",
+                imagem: "imagens/UmaAprendizagemouOLivrodosPrazeres.jpg",
+                descricao: "Chocolate quente suave e reconfortante."
+            },
+            {
+                id: 5,
+                nome: "Um Sopro de Vida",
+                categoria: "Bebidas",
+                preco: "R$ 14,00",
+                imagem: "imagens/UmSoprodeVida.jpg", 
+                descricao: "Chá aromático e delicado, ideal para uma pausa serena."
+            },
+            //doces:
+            {
+                id: 6,
+                nome: "Felicidade Clandestina",
+                categoria: "Doces",
+                preco: "R$ 8,50",
+                imagem: "imagens/FelicidadeClandestina.jpg", 
+                descricao: "Brigadeiro gourmet da casa, simples e irresistível."
+            },
+            {
+                id: 7,
+                nome: "A Maçã no Escuro",
+                categoria: "Doces",
+                preco: "R$ 19,50",
+                imagem: "imagens/AMacanoEscuro.jpg", 
+                descricao: "Fatia de torta de maçã com canela, servida quente."
+            },
+            {
+                id: 8,
+                nome: "O Lustre",
+                categoria: "Doces",
+                preco: "R$ 23,50",
+                imagem: "imagens/OLustre.jpg", 
+                descricao: "Sobremesa refinada e delicada com apresentação encantadora."
+            },
+            {
+                id: 9,
+                nome: "Laços de Família",
+                categoria: "Doces",
+                preco: "R$ 16,00",
+                imagem: "imagens/LacosDeFamilia.jpg", 
+                descricao: "Fatia de bolo caseiro macio e acolhedor."
+            },
+            {
+                id: 10,
+                nome: "A Descoberta do Mundo",
+                categoria: "Doces",
+                preco: "R$ 32,00",
+                imagem: "imagens/ADescobertaDoMundo.jpg", 
+                descricao: "Seleção de pequenos doces (Degustação com 4 minis)."
+            },
+            //salgados:
+            {
+                id: 11,
+                nome: "A Paixão segundo G.H.",
+                categoria: "Salgados",
+                preco: "R$ 24,00",
+                imagem: "imagens/APaixaoSegundoGH.jpg", 
+                descricao: "Quiche especial da casa (acompanha salada verde)."
+            },
+            {
+                id: 12,
+                nome: "A Cidade Sitiada",
+                categoria: "Salgados",
+                preco: "R$ 20,00",
+                imagem: "imagens/ACidadeSitiada.jpg", 
+                descricao: "Fatia de torta salgada recheada e caseira."
+            },
+            {
+                id: 13,
+                nome: "A Legião Estrangeira",
+                categoria: "Salgados",
+                preco: "R$ 34,00",
+                imagem: "imagens/ALegiaoEstrangeira.jpg", 
+                descricao: "Sanduíche especial com combinação única de ingredientes."
+            },
+            {
+                id: 14,
+                nome: "O Ovo e a Galinha",
+                categoria: "Salgados",
+                preco: "R$ 18,00",
+                imagem: "imagens/OOvoeaGalinha.jpg", 
+                descricao: "Pão artesanal tostado na manteiga com ovo mexido ou frito."
+            },
+            {
+                id: 15,
+                nome: "Via Crucis do Corpo",
+                categoria: "Salgados",
+                preco: "R$ 38,00",
+                imagem: "imagens/ViaCrucisdoCorpo.jpg", 
+                descricao: "Tábua especial com seleção de queijos artesanais, frios nobres, geleia da casa e torradas rústicas."
+            }
+        ];
+
+        const search = document.getElementById('search');
+        const grid = document.getElementById("grid");
+        const gridPedido = document.getElementById("gridPedido");
+        const secaoPedido = document.getElementById("secaoPedido");
+
+        // PERSISTÊNCIA (Itens do Pedido)
+        const STORAGE_KEY = 'itens_pedido';
+
+        function getPedido() {
+            const pedido = localStorage.getItem(STORAGE_KEY);
+            return pedido ? JSON.parse(pedido) : [];
+        }
+
+        function alternarSelecaoPedido(prato) {
+            let pedido = getPedido();
+            const index = pedido.findIndex(item => item.id === prato.id);
+
+            if (index > -1) {
+                pedido.splice(index, 1);
+            } else {
+                pedido.push(prato);
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(pedido));
+            renderizarPedido();
+            buscarPratos(search.value);
+        }
+
+        // RENDERIZAÇÃO DOS CARTÕES
+        function criarCard(item, ehSelecionado) {
+            const pratoJson = JSON.stringify(item).replace(/'/g, "&apos;");
+
+            return `
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <img
+                                src="${item.imagem}" 
+                                loading="lazy"
+                                alt="Foto do prato ${item.nome}"
+                                title="${item.nome}"
+                                onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Imagem+N%C3%A3o+Encontrada';">
+                        </div>
+                        
+                        <div class="card-back">
+                            <h3>${item.nome}</h3>
+                            <p class="preco"><strong>${item.preco}</strong></p>
+                            <p class="descricao">${item.descricao}</p>
+                            <button class="btn-fav ${ehSelecionado ? 'active' : ''}" 
+                                    onclick='alternarSelecaoPedido(${pratoJson})'>
+                                ${ehSelecionado ? 'Remover do Pedido' : 'Adicionar ao Pedido'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderizarPedido() {
+            const pedido = getPedido();
+            if (pedido.length > 0) {
+                secaoPedido.style.display = 'block';
+                gridPedido.innerHTML = pedido.map(m => criarCard(m, true)).join('');
+            } else {
+                secaoPedido.style.display = 'none';
+            }
+        }
+
+        function buscarPratos(termo = "") {
+            const pedido = getPedido();
+            const termoLower = termo.toLowerCase().trim();
+
+            const resultados = MENU_DATA.filter(item => 
+                item.nome.toLowerCase().includes(termoLower) ||
+                item.descricao.toLowerCase().includes(termoLower) ||
+                item.categoria.toLowerCase().includes(termoLower)
+            );
+
+            grid.innerHTML = resultados.map(item => {
+                const jaEstaNoPedido = pedido.some(p => p.id === item.id);
+                return criarCard(item, jaEstaNoPedido);
+            }).join('');
+        }
+
+        // EVENTOS DE PESQUISA
+        let timeout;
+        search.addEventListener("input", () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => buscarPratos(search.value), 300);
+        });
+
+        // Inicialização
+        renderizarPedido();
+        buscarPratos();
+    </script>
+</body>
+</html>

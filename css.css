@@ -1,0 +1,279 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* PALETA DE CORES
+   .color1 { #94542c } - Terracota
+   .color2 { #fcf4e4 } - Creme
+   .color3 { #5a3d22 } - Madeira
+   .color4 { #a37c63 } - Marrom Médio
+   .color5 { #d0b59c } - Bege Claro
+*/
+
+:root {
+    --color-primary: #94542c;
+    --color-bg-light: #fcf4e4;
+    --color-dark: #5a3d22;
+    --color-accent: #a37c63;
+    --color-light-accent: #d0b59c;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+body {
+    min-height: 100vh;
+    background-color: var(--color-bg-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--color-dark);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* CONTAINER PRINCIPAL */
+.container {
+    width: 95%;
+    max-width: 1200px;
+    padding: 40px 15px;
+}
+
+/* CAMPO DE PESQUISA */
+.search {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.search input {
+    width: 100%;
+    max-width: 600px;
+    padding: 16px 25px;
+    border-radius: 50px;
+    border: 2px solid var(--color-light-accent);
+    font-size: 16px;
+    background: #ffffff;
+    color: var(--color-dark);
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(90, 61, 34, 0.08);
+}
+
+.search input::placeholder {
+    color: var(--color-accent);
+}
+
+.search input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 12px rgba(148, 84, 44, 0.25);
+}
+
+/* GRID DE PRATOS */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 30px;
+}
+
+/* CARTÃO COM EFEITO FLIP 3D */
+.card {
+    perspective: 1000px;
+    height: 380px;
+    animation: fadeIn 0.5s ease;
+}
+
+.card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* GIRO AO PASSSAR O PONTEIRO (DESKTOP) */
+.card:hover .card-inner {
+    transform: rotateY(180deg);
+}
+
+/* FACES DO CARTÃO */
+.card-front,
+.card-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    overflow: hidden;
+    backface-visibility: hidden;
+    box-shadow: 0 8px 20px rgba(90, 61, 34, 0.12);
+}
+
+/* FRENTE: FOTO DO PRATO */
+.card-front {
+    border: 2px solid var(--color-light-accent);
+    background-color: var(--color-bg-light);
+}
+
+.card-front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .card-front img {
+    transform: scale(1.05);
+}
+
+/* VERSO: INFORMAÇÕES E BOTÃO DE SELEÇÃO */
+.card-back {
+    transform: rotateY(180deg);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    background: #ffffff;
+    border: 2px solid var(--color-primary);
+    color: var(--color-dark);
+}
+
+.card-back h3 {
+    font-size: 1.2rem;
+    color: var(--color-dark);
+    margin-bottom: 6px;
+    font-weight: 700;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-back .preco {
+    font-size: 1.25rem;
+    color: var(--color-primary);
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.card-back .descricao {
+    font-size: 13.5px;
+    color: var(--color-accent);
+    line-height: 1.4;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* BOTÃO DE ADICIONAR / REMOVER PEDIDO */
+.btn-fav {
+    padding: 12px 18px;
+    border-radius: 25px;
+    border: 2px solid var(--color-primary);
+    background: transparent;
+    color: var(--color-primary);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-fav:hover {
+    background: var(--color-primary);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(148, 84, 44, 0.3);
+}
+
+.btn-fav:active {
+    transform: scale(0.96);
+}
+
+.btn-fav.active {
+    background: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(148, 84, 44, 0.4);
+}
+
+.btn-fav.active:hover {
+    background: var(--color-dark);
+    border-color: var(--color-dark);
+}
+
+/* TÍTULOS DE SEÇÃO */
+h2 {
+    color: var(--color-primary) !important;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    .container {
+        width: 92%;
+        padding: 25px 0;
+    }
+
+    .search {
+        margin-bottom: 30px;
+    }
+
+    .search input {
+        font-size: 14px;
+        padding: 12px 20px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .card {
+        height: 340px;
+    }
+}
+
+@media (max-width: 500px) {
+    .grid {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 320px;
+        height: 360px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+}
