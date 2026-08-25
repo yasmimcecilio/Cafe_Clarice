@@ -12,7 +12,7 @@
 
     <div class="container">
         <h1 class="sr-only">Menu Gourmet</h1>
-
+        <img src="imagens/logo.png" class="imagemCafe" alt="Logo do Café Clarice">
         <div class="search">
             <label for="search" class="sr-only">
                 Pesquisar prato ou ingrediente...
@@ -22,13 +22,15 @@
 
         <div id="secaoPedido" style="display: none; margin-bottom: 50px;">
             <h2 style="margin-bottom: 20px;">Seu Pedido</h2>
-            <!-- <button class="btn-fav ${ehSelecionado ? 'active' : ''}" 
-                onclick='alternarSelecaoPedido(${pratoJson})'>
-                ${ehSelecionado ? 'Remover do Pedido' : 'Adicionar ao Pedido'}
-            </button> -->
             <div class="grid" id="gridPedido"></div>
+            <div id="valorTotal"></div>
+            <button id="btnEnviarPedido" class="btn-fav"  onclick="enviarPedido()">
+                Enviar Pedido
+            </button>
             <hr style="border: 0; border-top: 2px solid var(--color-light-accent); margin: 40px 0;">
         </div>
+
+        <div id="totalEnviado"></div>
 
         <h2 id="tituloBusca" style="margin-bottom: 20px;">Nosso Cardápio</h2>
         <div class="grid" id="grid"></div>
@@ -169,6 +171,8 @@
         // PERSISTÊNCIA (Itens do Pedido)
         const STORAGE_KEY = 'itens_pedido';
 
+        const TOTAL_KEY = 'valor_total_pedido';
+
         function getPedido() {
             const pedido = localStorage.getItem(STORAGE_KEY);
             return pedido ? JSON.parse(pedido) : [];
@@ -179,12 +183,34 @@
             const index = pedido.findIndex(item => item.id === prato.id);
 
             if (index > -1) {
-                pedido.splice(index, 1);
+                pedido[index].quantidade = (pedido[index].quantidade || 1) + 1;
             } else {
-                pedido.push(prato);
+                pedido.push({
+                    ...prato,
+                    quantidade: 1
+                });
             }
 
             localStorage.setItem(STORAGE_KEY, JSON.stringify(pedido));
+            renderizarPedido();
+            buscarPratos(search.value);
+        }
+
+        function diminuirQuantidade(id) {
+            let pedido = getPedido();
+
+            const index = pedido.findIndex(item => item.id === id);
+
+            if (index > -1) {
+                pedido[index].quantidade = (pedido[index].quantidade || 1) - 1;
+
+                if (pedido[index].quantidade <= 0) {
+                    pedido.splice(index, 1);
+                }
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(pedido));
+
             renderizarPedido();
             buscarPratos(search.value);
         }
@@ -209,10 +235,17 @@
                             <h3>${item.nome}</h3>
                             <p class="preco"><strong>${item.preco}</strong></p>
                             <p class="descricao">${item.descricao}</p>
-                            <button class="btn-fav ${ehSelecionado ? 'active' : ''}" 
-                                    onclick='alternarSelecaoPedido(${pratoJson})'>
-                                ${ehSelecionado ? 'Remover do Pedido' : 'Adicionar ao Pedido'}
-                            </button>
+                            ${ehSelecionado ? `
+                                <div class="controle-quantidade">
+                                    <button onclick="diminuirQuantidade(${item.id})">−</button>
+                                    <span>${item.quantidade || 1}</span>
+                                    <button onclick='alternarSelecaoPedido(${pratoJson})'>+</button>
+                                </div>
+                            ` : `
+                                <button class="btn-fav" onclick='alternarSelecaoPedido(${pratoJson})'>
+                                    Adicionar ao Pedido
+                                </button>
+                            `}
                         </div>
                     </div>
                 </div>
@@ -224,6 +257,7 @@
             if (pedido.length > 0) {
                 secaoPedido.style.display = 'block';
                 gridPedido.innerHTML = pedido.map(m => criarCard(m, true)).join('');
+                calcularTotal();
             } else {
                 secaoPedido.style.display = 'none';
             }
@@ -245,6 +279,65 @@
             }).join('');
         }
 
+        function calcularTotal(){
+            const pedido = getPedido();
+            let total = 0;
+
+            pedido.forEach(prato => {
+                const preco = parseFloat(
+                    prato.preco
+                        .replace("R$", "")
+                        .replace(".", "")
+                        .replace(",", ".")
+                );
+
+                total += preco * prato.quantidade;
+            });
+
+            document.getElementById("valorTotal").innerHTML =
+                `<strong>Valor Total: R$ ${total.toFixed(2).replace(".", ",")}</strong>`;
+        }
+
+        function mostrarTotalEnviado() {
+            const totalSalvo = localStorage.getItem(TOTAL_KEY);
+
+            if (totalSalvo) {
+                const total = parseFloat(totalSalvo);
+
+                document.getElementById("totalEnviado").innerHTML =
+                    `<strong>Valor do pedido enviado: R$ ${total.toFixed(2).replace(".", ",")}</strong>`;
+            }
+        }
+
+        function enviarPedido(){
+            const pedido = getPedido();
+
+            if(pedido.length === 0){
+                return;
+            }
+
+            let total = 0;
+
+            pedido.forEach(prato=> {
+                const preco = parseFloat(
+                    prato.preco
+                         .replace("R$", "")
+                         .replace(".", "")
+                         .replace(",", ".")
+                );
+
+                total += preco * (prato.quantidade || 1);
+            });
+
+            localStorage.setItem(TOTAL_KEY, total.toFixed(2));
+
+            localStorage.removeItem(STORAGE_KEY);
+
+            renderizarPedido();
+            buscarPratos(search.value);
+            mostrarTotalEnviado();
+        }
+
         // EVENTOS DE PESQUISA
         let timeout;
         search.addEventListener("input", () => {
@@ -255,6 +348,7 @@
         // Inicialização
         renderizarPedido();
         buscarPratos();
+        mostrarTotalEnviado();
     </script>
 </body>
 </html>
